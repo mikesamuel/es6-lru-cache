@@ -10,7 +10,10 @@ To install
 $ npm install an-lru-cache
 ```
 
-[![Coverage Status](https://coveralls.io/repos/github/mikesamuel/es6-lru-cache/badge.svg?branch=master)](https://coveralls.io/github/mikesamuel/es6-lru-cache?branch=master) [![Build Status](https://travis-ci.org/mikesamuel/es6-lru-cache.svg?branch=master)](https://travis-ci.org/mikesamuel/es6-lru-cache)
+[![Coverage Status](https://coveralls.io/repos/github/mikesamuel/es6-lru-cache/badge.svg?branch=master)](https://coveralls.io/github/mikesamuel/es6-lru-cache?branch=master)
+[![Build Status](https://travis-ci.org/mikesamuel/es6-lru-cache.svg?branch=master)](https://travis-ci.org/mikesamuel/es6-lru-cache)
+[![Dependencies Status](https://david-dm.org/mikesamuel/es6-lru-cache/status.svg)](https://david-dm.org/mikesamuel/es6-lru-cache)
+[![npm](https://img.shields.io/npm/v/an-lru-cache.svg)](https://www.npmjs.com/package/an-lru-cache)
 
 ## API
 
