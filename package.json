@@ -1,7 +1,7 @@
 {
   "name": "es6-lru-cache",
   "description": "Simplifies authoring JS template tags like foo`...`",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [
     "container",
     "lru-cache",
