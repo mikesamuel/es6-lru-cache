@@ -7,7 +7,7 @@ items first.
 To install
 
 ```sh
-$ npm install es6-lru-cache
+$ npm install an-lru-cache
 ```
 
 [![Coverage Status](https://coveralls.io/repos/github/mikesamuel/es6-lru-cache/badge.svg?branch=master)](https://coveralls.io/github/mikesamuel/es6-lru-cache?branch=master) [![Build Status](https://travis-ci.org/mikesamuel/es6-lru-cache.svg?branch=master)](https://travis-ci.org/mikesamuel/es6-lru-cache)
@@ -17,7 +17,7 @@ $ npm install es6-lru-cache
 The API mirrors the builtin `Map` and `WeakMap` APIs but does not include iterators.
 
 ```js
-const { LruCache } = require('es6-lru-cache')
+const { LruCache } = require('an-lru-cache')
 
 const myCache = new LruCache()  // Default capacity is 100
 

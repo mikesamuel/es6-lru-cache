@@ -1,5 +1,5 @@
 {
-  "name": "es6-lru-cache",
+  "name": "an-lru-cache",
   "description": "Simplifies authoring JS template tags like foo`...`",
   "version": "1.0.1",
   "keywords": [
