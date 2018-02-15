@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - "7"
+  - "8"
+  - "9"
+  - "stable"
+
+# Use faster Docker architecture on Travis.
+sudo: false
+
+script:        npm run-script lint && npm test
+# Courtesy http://dsernst.com/2015/09/02/node-mocha-travis-istanbul-coveralls-unit-tests-coverage-for-your-open-source-project/
+after_success:
+- npm run coveralls
