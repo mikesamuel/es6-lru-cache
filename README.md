@@ -1,7 +1,5 @@
 # ES6 LRU Cache
 
-[![Coverage Status](https://coveralls.io/repos/github/mikesamuel/es6-lru-cache/badge.svg?branch=master)](https://coveralls.io/github/mikesamuel/es6-lru-cache?branch=master)
-
 A simple [LRU Cache](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU), a
 Map that has a maximum number of entries and which discards the least recently used
 items first.
@@ -11,6 +9,8 @@ To install
 ```sh
 $ npm install es6-lru-cache
 ```
+
+[![Coverage Status](https://coveralls.io/repos/github/mikesamuel/es6-lru-cache/badge.svg?branch=master)](https://coveralls.io/github/mikesamuel/es6-lru-cache?branch=master) [![Build Status](https://travis-ci.org/mikesamuel/es6-lru-cache.svg?branch=master)](https://travis-ci.org/mikesamuel/es6-lru-cache)
 
 ## API
 
