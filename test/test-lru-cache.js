@@ -23,10 +23,23 @@ const { LruCache } = require('../index')
 
 const hole = { toString: () => 'HOLE' }
 function expects (cache, vals) {
-  for (let i = 0; i < vals.length; ++i) {
-    const val = vals[i]
-    expect(cache.get(i), i).to.equal(val === hole ? undefined : val)
-    expect(cache.has(i), i).to.equal(val !== hole)
+  function expectEntry (key) {
+    const val = vals[key]
+    expect(cache.peek(key), key)
+      .to.equal(val === hole ? undefined : val)
+    expect(cache.has(key), key)
+      .to.equal(val !== hole)
+  }
+  if (Array.isArray(vals)) {
+    for (let i = 0; i < vals.length; ++i) {
+      expectEntry(i)
+    }
+  } else {
+    for (const key in vals) {
+      if (Object.hasOwnProperty.call(vals, key)) {
+        expectEntry(key)
+      }
+    }
   }
 }
 
@@ -36,6 +49,9 @@ describe('lru-cache', () => {
     const key = {}
     it('get', () => {
       expect(cache.get(key)).to.equal(undefined)
+    })
+    it('peek', () => {
+      expect(cache.peek(key)).to.equal(undefined)
     })
     it('has', () => {
       expect(cache.has(key)).to.equal(false)
@@ -158,12 +174,12 @@ describe('lru-cache', () => {
       for (let i = 0; i < keys.length; ++i) {
         cache.set(keys[i], i)
       }
-      expect(cache.get(keys[0])).to.equal(undefined)
-      expect(cache.get(keys[1])).to.equal(undefined)
-      expect(cache.get(keys[2])).to.equal(2)
-      expect(cache.get(keys[3])).to.equal(3)
-      expect(cache.get(keys[4])).to.equal(4)
-      expect(cache.get(keys[5])).to.equal(5)
+      expect(cache.peek(keys[0])).to.equal(undefined)
+      expect(cache.peek(keys[1])).to.equal(undefined)
+      expect(cache.peek(keys[2])).to.equal(2)
+      expect(cache.peek(keys[3])).to.equal(3)
+      expect(cache.peek(keys[4])).to.equal(4)
+      expect(cache.peek(keys[5])).to.equal(5)
 
       // Delete all and reenter.
       for (let i = 0; i < keys.length; ++i) {
@@ -185,7 +201,32 @@ describe('lru-cache', () => {
     expect(cacheMaker(Infinity)).to.throw()
     expect(cacheMaker(-Infinity)).to.throw()
   })
-  it('coalesce on set', () => {
+  it('singleton cache', () => {
+    // Test degenerate cases when capacity is 1 which exercises corner
+    // cases where the capacity is reached and the head and tail of
+    // the key list are the same.
+    const cache = new LruCache(1)
+
+    cache.set(0, 'a')
+    expects(cache, [ 'a', hole ])
+    expect(cache.get(0)).to.equal('a')
+    expect(cache.get(1)).to.equal(undefined)
+    cache.set(1, 'b')
+    expects(cache, [ hole, 'b' ])
+    expect(cache.get(0)).to.equal(undefined)
+    expect(cache.get(1)).to.equal('b')
+    cache.delete(0)
+    expects(cache, [ hole, 'b' ])
+    expect(cache.get(0)).to.equal(undefined)
+    expect(cache.get(1)).to.equal('b')
+    cache.delete(1)
+    expects(cache, [ hole, hole ])
+    expect(cache.get(0)).to.equal(undefined)
+    expect(cache.get(1)).to.equal(undefined)
+    cache.set(0, 'c')
+    expects(cache, [ 'c', hole ])
+  })
+  it('eviction on set', () => {
     const cache = new LruCache(4)
 
     cache.set(0, 0)
@@ -193,46 +234,57 @@ describe('lru-cache', () => {
     cache.set(2, 2)
     cache.set(3, 3)
     expects(cache, [ 0, 1, 2, 3, hole ])
-    // Now, the LRU stack looks like
-    //    LRU [3, 2, 1, 0] MRU
-    // A set would evict 0.
     cache.delete(2)
     cache.delete(1)
     expects(cache, [ 0, hole, hole, 3, hole ])
-    // Now, the LRU stack looks like
-    //   LRU [3, 0] MRU
-    // A set would evict 0, but there is
-    // also space we can reclaim so we could
-    // do 3 sets without another eviction.
     cache.set(4, 4)
     cache.set(5, 5)
     cache.set(6, 6)
-    // Now the LRU stack loocks like
-    //   LRU [6, 5, 4, 3] MRU
     expects(cache, [ hole, hole, hole, 3, 4, 5, 6, hole ])
-    // Another set finally evicts 3
     cache.set(7, 7)
+    expects(cache, [ hole, hole, hole, hole, 4, 5, 6, 7, hole ])
+  })
+  it('lru includes reads', () => {
+    const cache = new LruCache(4)
+    cache.set(0, 0)
+    cache.set(1, 1)
+    cache.set(2, 2)
+    cache.set(3, 3)
+    expects(cache, [ 0, 1, 2, 3, hole ])
+    // The LRU list should look like: LRU [0, 1, 2, 3] MRU
+    expect(cache.get(1)).to.equal(1)
+    // The LRU list should look like: LRU [0, 2, 3, 1] MRU
+    cache.set(4, 4)
+    expects(cache, [ hole, 1, 2, 3, 4, hole ])
+    cache.set(5, 5)
+    // The LRU list should look like: LRU [3, 1, 4, 5] MRU
+    expects(cache, [ hole, 1, hole, 3, 4, 5, hole ])
+    cache.set(6, 6)
+    // The LRU list should look like: LRU [1, 4, 5, 6] MRU
+    expects(cache, [ hole, 1, hole, hole, 4, 5, 6, hole ])
+    cache.set(7, 7)
+    // The LRU list should look like: LRU [4, 5, 6, 7] MRU
     expects(cache, [ hole, hole, hole, hole, 4, 5, 6, 7, hole ])
   })
   it('coalesce to start', () => {
     const cache = new LruCache(4)
 
-    cache.set(0, 'a')
-    cache.set(1, 'b')
-    cache.set(2, 'c')
-    cache.set(3, 'd')
-    expects(cache, [ 'a', 'b', 'c', 'd', hole ])
-    cache.delete(1)
-    cache.delete(2)
-    expects(cache, [ 'a', hole, hole, 'd', hole ])
-    cache.set(4, 'e')
-    expects(cache, [ hole, hole, hole, 'd', 'e', hole ])
-    cache.set(0, 'f')
-    cache.set(1, 'g')
-    cache.set(2, 'h')
-    expects(cache, [ 'f', 'g', 'h', hole, 'e', hole ])
-    cache.set(3, 'i')
-    expects(cache, [ 'f', 'g', 'h', 'i', hole, hole ])
+    cache.set('A', 'a')
+    cache.set('B', 'b')
+    cache.set('C', 'c')
+    cache.set('D', 'd')
+    expects(cache, { A: 'a', B: 'b', C: 'c', D: 'd', E: hole })
+    cache.delete('B')
+    cache.delete('C')
+    expects(cache, { A: 'a', B: hole, C: hole, D: 'd', E: hole })
+    cache.set('E', 'e')
+    expects(cache, { A: 'a', B: hole, C: hole, D: 'd', E: 'e', F: hole })
+    cache.set('A', 'f')
+    cache.set('B', 'g')
+    cache.set('C', 'h')
+    expects(cache, { A: 'f', B: 'g', C: 'h', D: hole, E: 'e', F: hole })
+    cache.set('D', 'i')
+    expects(cache, { A: 'f', B: 'g', C: 'h', D: 'i', E: hole, F: hole })
   })
   it('eviction', function eviction () {
     // This test takes a while
@@ -283,19 +335,22 @@ describe('lru-cache', () => {
       expect(cache.get('a'), `i=${i}`).to.equal('A')
     }
   })
-  it('fuzz', () => {
+  it('fuzz', function fuzz () {
+    // eslint-disable-next-line no-invalid-this, line-comment-position, no-inline-comments
+    this.slow(5000) // ms
+
     // stochastic tests that compare a simple but inefficient
     // implementation against the actual run against the same randomly
     // generated sequence of operations
     const capacity = 20
-    const repetitions = 5000
+    const repetitions = 10000
 
     class SlowCache {
       constructor () {
         this.map = new Map()
       }
 
-      get (key) {
+      peek (key) {
         return this.map.get(key)
       }
 
@@ -324,7 +379,7 @@ describe('lru-cache', () => {
         // A simple but slow implementation that we compare to.
         const slowCache = new SlowCache()
         // Method names to exercise.
-        const methods = [ 'get', 'set', 'has', 'delete' ]
+        const methods = [ 'peek', 'set', 'has', 'delete' ]
 
         for (let i = 0; i < repetitions; ++i) {
           const method = methods[randomIntBetween(0, methods.length)]
@@ -340,7 +395,7 @@ describe('lru-cache', () => {
             method,
             args
           }
-          if (method === 'get' || method === 'has') {
+          if (method === 'peek' || method === 'has') {
             step.want = result
           }
           testScriptArr[i] = step
