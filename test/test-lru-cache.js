@@ -409,7 +409,7 @@ describe('lru-cache', () => {
       testScript.forEach((step, i) => {
         const { method, args, key } = step
         if (method === 'set') {
-          if (lruMusts.length >= (capacity / 2)) {
+          if (lruMusts.length >= capacity) {
             lruMusts.shift()
           }
           lruMusts.push(key)
