@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "chai": ">=4.1.2",
-    "coveralls": "^3.0.0",
+    "coveralls": "^3.0.1",
     "eslint": ">=4.15.0",
     "eslint-config-standard": "*",
     "eslint-config-strict": "*",
