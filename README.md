@@ -14,6 +14,7 @@ $ npm install an-lru-cache
 [![Build Status](https://travis-ci.org/mikesamuel/es6-lru-cache.svg?branch=master)](https://travis-ci.org/mikesamuel/es6-lru-cache)
 [![Dependencies Status](https://david-dm.org/mikesamuel/es6-lru-cache/status.svg)](https://david-dm.org/mikesamuel/es6-lru-cache)
 [![npm](https://img.shields.io/npm/v/an-lru-cache.svg)](https://www.npmjs.com/package/an-lru-cache)
+[![Known Vulnerabilities](https://snyk.io/test/github/mikesamuel/es6-lru-cache/badge.svg?targetFile=package.json)](https://snyk.io/test/github/mikesamuel/es6-lru-cache?targetFile=package.json)
 
 ## API
 
