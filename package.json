@@ -1,7 +1,7 @@
 {
   "name": "an-lru-cache",
   "description": "A simple LRU Cache, a Map that has a maximum number of entries and which discards the least recently used items first.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "keywords": [
     "container",
     "lru-cache",
@@ -21,7 +21,9 @@
     "prepack": "npm run lint && npm test",
     "test": "mocha"
   },
-  "pre-commit": [ "prepack" ],
+  "pre-commit": [
+    "prepack"
+  ],
   "author": "@mikesamuel",
   "license": "Apache-2.0",
   "repository": {
